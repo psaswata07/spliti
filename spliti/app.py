@@ -605,9 +605,11 @@ def export_csv(gid: int) -> StreamingResponse:
 
         buf.seek(0)
         filename = f"spliti-{group['name'].lower().replace(' ', '-')}-expenses.csv"
+        # UTF-8 BOM so Excel recognises the encoding (₹ symbol, etc.)
+        content = "\ufeff" + buf.getvalue()
         return StreamingResponse(
-            iter([buf.getvalue()]),
-            media_type="text/csv",
+            iter([content]),
+            media_type="text/csv; charset=utf-8-sig",
             headers={"Content-Disposition": f'attachment; filename="{filename}"'},
         )
     finally:
